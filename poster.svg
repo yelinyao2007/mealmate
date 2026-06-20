@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 1100" width="650" height="1100">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF9F0"/>
+      <stop offset="100%" style="stop-color:#F5E6D3"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E07A5F"/>
+      <stop offset="100%" style="stop-color:#F4A261"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="650" height="1100" fill="url(#bg)"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="650" height="200" fill="url(#accent)" opacity="0.15"/>
+  
+  <!-- Logo Area -->
+  <circle cx="325" cy="100" r="60" fill="#E07A5F" opacity="0.9"/>
+  <text x="325" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" fill="white" font-weight="bold">M</text>
+  
+  <!-- Title -->
+  <text x="325" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" fill="#3D405B" font-weight="bold">MealMate</text>
+  <text x="325" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#81B29A">智能菜谱助手</text>
+  
+  <!-- Tagline -->
+  <text x="325" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#3D405B" font-weight="bold">"冰箱里的食材，</text>
+  <text x="325" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#3D405B" font-weight="bold">AI帮你变美味"</text>
+  
+  <!-- Divider -->
+  <line x1="150" y1="460" x2="500" y2="460" stroke="#E07A5F" stroke-width="2" stroke-dasharray="10,5"/>
+  
+  <!-- Features -->
+  <text x="325" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#3D405B" font-weight="bold">核心功能</text>
+  
+  <rect x="80" y="540" width="230" height="100" rx="15" fill="white" stroke="#F4A261" stroke-width="2"/>
+  <text x="195" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#E07A5F" font-weight="bold">🍳 AI 菜谱生成</text>
+  <text x="195" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#666">输入食材 → 秒出菜谱</text>
+  
+  <rect x="340" y="540" width="230" height="100" rx="15" fill="white" stroke="#81B29A" stroke-width="2"/>
+  <text x="455" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#81B29A" font-weight="bold">📷 图像识别</text>
+  <text x="455" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#666">拍照识别食材</text>
+  
+  <rect x="80" y="660" width="230" height="100" rx="15" fill="white" stroke="#3D405B" stroke-width="2"/>
+  <text x="195" y="690" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#3D405B" font-weight="bold">💬 AI 智能对话</text>
+  <text x="195" y="715" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#666">对话调整菜谱</text>
+  
+  <rect x="340" y="660" width="230" height="100" rx="15" fill="white" stroke="#81B29A" stroke-width="2"/>
+  <text x="455" y="690" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#81B29A" font-weight="bold">📖 社交分享</text>
+  <text x="455" y="715" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#666">发布 · 点赞 · 改编</text>
+  
+  <!-- Demo Area -->
+  <text x="325" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#3D405B" font-weight="bold">演示示例</text>
+  
+  <rect x="100" y="840" width="450" height="180" rx="15" fill="white" stroke="#E07A5F" stroke-width="3"/>
+  <text x="325" y="880" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#3D405B" font-weight="bold">🍖 糖醋里脊</text>
+  <text x="325" y="910" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#666">酸甜可口，外酥里嫩</text>
+  <line x1="130" y1="930" x2="520" y2="930" stroke="#ddd"/>
+  <text x="325" y="955" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888">识别食材：猪里脊肉、白糖、白醋...</text>
+  <text x="325" y="980" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888">步骤：腌制→油炸→裹酱→完成</text>
+  
+  <!-- Tech Stack -->
+  <text x="325" y="1070" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#666">技术栈</text>
+  <text x="325" y="1095" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888">React + FastAPI + SQLite + OpenAI</text>
+</svg>

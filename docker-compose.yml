@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  mealmate:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MOONSHOT_API_KEY=${MOONSHOT_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-super-secret-change-me}
+      - DATABASE_URL=sqlite:///./data/mealmate.db
+    volumes:
+      - mealmate-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  mealmate-data:

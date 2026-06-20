@@ -1,0 +1,2 @@
+Columns: id, email, password_hash, name, avatar_url, preferences, created_at, ai_memory
+SUCCESS: ai_memory column exists

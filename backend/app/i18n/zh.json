@@ -1,0 +1,94 @@
+{
+  "app": {
+    "name": "MealMate"
+  },
+  "nav": {
+    "home": "首页",
+    "recipes": "食谱",
+    "my_recipes": "我的食谱",
+    "saved": "收藏",
+    "weekly_plan": "周计划",
+    "settings": "设置",
+    "logout": "退出登录",
+    "login": "登录"
+  },
+  "auth": {
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出登录",
+    "email": "邮箱",
+    "password": "密码",
+    "confirm_password": "确认密码",
+    "name": "用户名",
+    "no_account": "没有账号？",
+    "has_account": "已有账号？"
+  },
+  "recipes": {
+    "title": "食谱",
+    "add_recipe": "添加食谱",
+    "edit_recipe": "编辑食谱",
+    "delete_recipe": "删除食谱",
+    "ingredients": "食材",
+    "steps": "步骤",
+    "prep_time": "准备时间",
+    "cook_time": "烹饪时间",
+    "difficulty": "难度",
+    "difficulty_easy": "简单",
+    "difficulty_medium": "中等",
+    "difficulty_hard": "困难",
+    "likes": "喜欢",
+    "save": "保存食谱",
+    "cancel": "取消",
+    "delete_confirm": "确定要删除这个食谱吗？"
+  },
+  "feed": {
+    "title": "食谱列表",
+    "empty": "还没有食谱，快添加第一个吧！",
+    "load_more": "加载更多"
+  },
+  "profile": {
+    "title": "个人资料",
+    "preferences": "偏好设置",
+    "my_recipes": "我的食谱",
+    "saved_recipes": "收藏的食谱"
+  },
+  "weekly_plan": {
+    "title": "每周餐饮计划",
+    "generate": "生成计划",
+    "grocery_list": "购物清单",
+    "estimated_cost": "预计花费",
+    "savings": "可节省"
+  },
+  "agent1": {
+    "title": "AI厨师",
+    "start": "开始对话",
+    "describe": "描述你的菜品"
+  },
+  "agent2": {
+    "title": "风味探索",
+    "start": "开始探索"
+  },
+  "agent3": {
+    "title": "AI食谱生成",
+    "generate": "生成食谱"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "confirm": "确认",
+    "yes": "是",
+    "no": "否"
+  },
+  "errors": {
+    "login_failed": "登录失败，请检查您的凭证。",
+    "signup_failed": "注册失败，请重试。",
+    "network_error": "网络错误，请检查您的连接。",
+    "not_found": "未找到"
+  }
+}
