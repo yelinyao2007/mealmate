@@ -45,7 +45,8 @@ class EnvironmentConfigParser:
         'gemini': 'GOOGLE_',
         'local': 'LOCAL_',
         'longcat': 'LONGCAT_',
-        'moonshot': 'MOONSHOT_'
+        'moonshot': 'MOONSHOT_',
+        'stepfun': 'STEPFUN_'
     }
 
     # Required environment variables for each provider type
@@ -56,6 +57,7 @@ class EnvironmentConfigParser:
         'local': []  # Local providers have different requirements
         , 'longcat': ['API_KEY']
         , 'moonshot': ['API_KEY']
+        , 'stepfun': ['API_KEY']
     }
 
     def __init__(self):
@@ -141,9 +143,9 @@ class EnvironmentConfigParser:
                 setting_name = env_var[len(prefix):].lower()
 
                 # Convert snake_case to camelCase for some providers
-                if provider_type in ('openai', 'moonshot') and setting_name == 'base_url':
+                if provider_type in ('openai', 'moonshot', 'stepfun') and setting_name == 'base_url':
                     setting_name = 'baseUrl'
-                elif provider_type in ('openai', 'moonshot') and setting_name == 'timeout':
+                elif provider_type in ('openai', 'moonshot', 'stepfun') and setting_name == 'timeout':
                     setting_name = 'timeout'
                 elif provider_type == 'anthropic' and setting_name == 'base_url':
                     setting_name = 'baseUrl'

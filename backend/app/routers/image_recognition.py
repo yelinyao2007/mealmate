@@ -120,9 +120,7 @@ KNOWN_FALLBACKS = {
 
 
 def _image_provider() -> str:
-    if _demo_mode_enabled():
-        return "stepfun"
-    return "moonshot"
+    return "stepfun"
 
 
 def _moonshot_api_key() -> str:
@@ -150,9 +148,7 @@ def _normalized_base_url(env_name: str, default: str) -> str:
 
 
 def _stepfun_base_url() -> str:
-    if _demo_mode_enabled():
-        return _normalized_base_url("STEPFUN_BASE_URL", DEFAULT_STEPFUN_BASE_URL)
-    return _normalized_base_url("STEPFUN_PLAN_BASE_URL", DEFAULT_STEPFUN_PLAN_BASE_URL)
+    return _normalized_base_url("STEPFUN_BASE_URL", DEFAULT_STEPFUN_BASE_URL)
 
 
 def _stepfun_api_key() -> str:
@@ -534,10 +530,10 @@ async def _recognize(req: ImageRecognizeRequest, current_user: User | None, db: 
         logger.info("Using local demo image recognition fallback for %s: %s", provider, exc)
         fallback_note = _fallback_message(provider, exc)
 
-    if provider == "moonshot" and _looks_like_non_multimodal_reply(reply):
-        logger.info("Kimi returned a non-multimodal reply; using local demo fallback")
+    if _looks_like_non_multimodal_reply(reply):
+        logger.warning("%s returned a non-multimodal reply; using local demo fallback", provider)
         reply = None
-        fallback_note = "\u5f53\u524d Kimi \u6a21\u578b\u672a\u5b9e\u9645\u8bc6\u522b\u56fe\u7247\u5185\u5bb9\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u8bc6\u522b\u7ed3\u679c\u3002"
+        fallback_note = "\u5f53\u524d\u6a21\u578b\u672a\u5b9e\u9645\u8bc6\u522b\u56fe\u7247\u5185\u5bb9\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u8bc6\u522b\u7ed3\u679c\u3002"
 
     result_json = _parse_json_response(reply)
     ingredients = _normalize_ingredients(result_json.get("ingredients"))
@@ -546,17 +542,17 @@ async def _recognize(req: ImageRecognizeRequest, current_user: User | None, db: 
     if recipe and not ingredients:
         ingredients = recipe.ingredients
 
-    # For showcase stability, never expose an empty recognition result to users.
-    if provider == "moonshot" and recognition_type == "ingredients" and not ingredients:
+    # Never expose an empty recognition result to users.
+    if recognition_type == "ingredients" and not ingredients:
         fallback_note = (
             fallback_note
-            or (known_fallback[1] if known_fallback else "\u5f53\u524d Kimi \u672a\u80fd\u7a33\u5b9a\u8bc6\u522b\u51fa\u98df\u6750\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u8bc6\u522b\u7ed3\u679c\u3002")
+            or (known_fallback[1] if known_fallback else "\u672a\u80fd\u7a33\u5b9a\u8bc6\u522b\u51fa\u98df\u6750\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u8bc6\u522b\u7ed3\u679c\u3002")
         )
 
-    if provider == "moonshot" and recognition_type == "dish" and not recipe and not ingredients:
+    if recognition_type == "dish" and not recipe and not ingredients:
         fallback_note = (
             fallback_note
-            or (known_fallback[1] if known_fallback else "\u5f53\u524d Kimi \u672a\u80fd\u7a33\u5b9a\u8bc6\u522b\u51fa\u83dc\u54c1\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u83dc\u54c1\u7ed3\u679c\u3002")
+            or (known_fallback[1] if known_fallback else "\u672a\u80fd\u7a33\u5b9a\u8bc6\u522b\u51fa\u83dc\u54c1\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u6f14\u793a\u83dc\u54c1\u7ed3\u679c\u3002")
         )
 
     if fallback_note and (

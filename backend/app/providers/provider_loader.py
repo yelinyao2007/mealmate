@@ -47,7 +47,8 @@ class ProviderLoader:
         'gemini': ('providers.gemini', 'GeminiLLMProvider'),
         'local': ('providers.local', 'LocalLLMProvider'),
         'longcat': ('providers.longcat', 'LongcatLLMProvider'),
-        'moonshot': ('providers.openai', 'OpenAILLMProvider')
+        'moonshot': ('providers.openai', 'OpenAILLMProvider'),
+        'stepfun': ('providers.openai', 'OpenAILLMProvider')
     }
 
     def __init__(self):

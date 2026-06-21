@@ -18,6 +18,44 @@ def _kimi_base_url() -> str:
     return os.getenv("MOONSHOT_BASE_URL", "https://api.kimi.com/coding/v1").strip().rstrip("/")
 
 
+def _get_stepfun_style(title: str, description: str, ingredients: list[str]) -> dict | None:
+    """Use StepFun to determine dish visual style (type + colors)."""
+    api_key = os.getenv("STEPFUN_API_KEY", "").strip()
+    base_url = os.getenv("STEPFUN_BASE_URL", "https://api.stepfun.com/v1").strip().rstrip("/")
+    if not api_key:
+        return None
+    prompt = (
+        f'食谱：{title}\n描述：{description}\n食材：{"、".join(ingredients[:6])}\n'
+        f'请分析这道菜的视觉风格，返回JSON：{{"type":"meat|noodle|soup|seafood|dish","bg1":"背景主色hex","bg2":"背景辅色hex","accent":"强调色hex"}}\n只返回JSON。'
+    )
+    url = f"{base_url}/chat/completions"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload = {"model": "step-2", "max_tokens": 200, "messages": [{"role": "user", "content": prompt}]}
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            resp = client.post(url, json=payload, headers=headers)
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        choices = data.get("choices") or []
+        if not choices:
+            return None
+        text = (choices[0].get("message") or {}).get("content", "").strip()
+        if not text:
+            return None
+        if text.startswith("```"):
+            lines = text.splitlines()
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            text = "\n".join(lines)
+        return json.loads(text)
+    except Exception as e:
+        logger.debug("StepFun style API error: %s", e)
+        return None
+
+
 def _get_kimi_style(title: str, description: str, ingredients: list[str]) -> dict | None:
     """Use Kimi kimi-k2.6 to determine dish visual style (type + colors)."""
     key = _kimi_api_key()
@@ -307,11 +345,16 @@ def ensure_recipe_image_url(title: str, description: str = "", ingredients: list
     output_path = output_dir / f"recipe-{digest}.svg"
 
     if not output_path.exists():
-        # Try Kimi-generated style first
-        kimi_style = _get_kimi_style(title, description, ingredients)
-        if kimi_style:
-            logger.info("Using Kimi style for recipe: %s", title)
-            svg = _build_svg(title, description, ingredients, style=kimi_style)
+        # Try StepFun-generated style first, fallback to Kimi, then default
+        style = _get_stepfun_style(title, description, ingredients)
+        if style:
+            logger.info("Using StepFun style for recipe: %s", title)
+        else:
+            style = _get_kimi_style(title, description, ingredients)
+            if style:
+                logger.info("Using Kimi style for recipe: %s", title)
+        if style:
+            svg = _build_svg(title, description, ingredients, style=style)
         else:
             logger.info("Using default style for recipe: %s", title)
             svg = _build_svg(title, description, ingredients)
