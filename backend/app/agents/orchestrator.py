@@ -195,9 +195,16 @@ class WorkflowOrchestrator:
     def _summarize_menu(self, weekly_menu: dict) -> dict:
         """Extract a lightweight summary from the full weekly menu for downstream agents."""
         summary = {}
+        if not isinstance(weekly_menu, dict):
+            logger.warning("_summarize_menu: weekly_menu is not a dict (%s)", type(weekly_menu).__name__)
+            return summary
         for day, meals in weekly_menu.items():
+            if not isinstance(meals, dict):
+                continue
             summary[day] = {}
             for meal, detail in meals.items():
+                if not isinstance(detail, dict):
+                    continue
                 summary[day][meal] = {
                     "dish_names": [
                         *(detail.get("荤菜", [])),
@@ -304,7 +311,8 @@ class WorkflowOrchestrator:
 
         # Steps 2-4: Run Nutrition, Procurement, Customization IN PARALLEL
         # All three only depend on Step 1 output, no cross-dependency
-        weekly_menu = r1.data.get("weekly_menu", r1.data)
+        raw_menu = r1.data.get("weekly_menu", r1.data)
+        weekly_menu = raw_menu if isinstance(raw_menu, dict) else {}
         # Use summarized menu for downstream agents (reduces prompt size ~80%)
         summarized_menu = self._summarize_menu(weekly_menu)
 
@@ -410,8 +418,9 @@ class WorkflowOrchestrator:
         
         final_output["menu_plan"] = r1.data
 
+        raw_menu = r1.data.get("weekly_menu")
         nutrition_input = {
-            "weekly_menu": r1.data.get("weekly_menu", r1.data),
+            "weekly_menu": raw_menu if isinstance(raw_menu, dict) else {},
             "target_population": input_data.get("target_population", "青年群体"),
         }
         ws2, r2 = self._run_agent(NutritionAnalyzerAgent, nutrition_input, 2, on_step_update)
@@ -484,8 +493,9 @@ class WorkflowOrchestrator:
         
         final_output["menu_plan"] = r1.data
 
+        raw_menu = r1.data.get("weekly_menu")
         procurement_input = {
-            "weekly_menu": r1.data.get("weekly_menu", r1.data),
+            "weekly_menu": raw_menu if isinstance(raw_menu, dict) else {},
             "num_people": input_data.get("num_people", 100),
             "existing_inventory": input_data.get("existing_inventory", []),
         }
@@ -553,8 +563,9 @@ class WorkflowOrchestrator:
         
         final_output["menu_plan"] = r1.data
 
+        raw_menu = r1.data.get("weekly_menu")
         customize_input = {
-            "weekly_menu": r1.data.get("weekly_menu", r1.data),
+            "weekly_menu": raw_menu if isinstance(raw_menu, dict) else {},
             "target_groups": input_data.get("target_groups", ["青年白领"]),
             "health_conditions": input_data.get("health_conditions", []),
             "individual_preferences": input_data.get("individual_preferences", ""),

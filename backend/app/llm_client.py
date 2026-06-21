@@ -91,7 +91,7 @@ class _SyncMultiProviderWrapper:
         self,
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
-        max_tokens: int = 1024,
+        max_tokens: int = 4096,
     ) -> dict:
         coro = self._client.chat_completion_json(
             messages=messages, temperature=temperature, max_tokens=max_tokens

@@ -21,7 +21,8 @@ def _kimi_base_url() -> str:
 def _get_stepfun_style(title: str, description: str, ingredients: list[str]) -> dict | None:
     """Use StepFun to determine dish visual style (type + colors)."""
     api_key = os.getenv("STEPFUN_API_KEY", "").strip()
-    base_url = os.getenv("STEPFUN_BASE_URL", "https://api.stepfun.com/v1").strip().rstrip("/")
+    base_url = os.getenv("STEPFUN_BASE_URL", "https://api.xiaomimimo.com/v1").strip().rstrip("/")
+    model = os.getenv("STEPFUN_VISION_MODEL", "mimo-v2.5").strip() or "mimo-v2.5"
     if not api_key:
         return None
     prompt = (
@@ -30,7 +31,7 @@ def _get_stepfun_style(title: str, description: str, ingredients: list[str]) -> 
     )
     url = f"{base_url}/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {"model": "step-2", "max_tokens": 200, "messages": [{"role": "user", "content": prompt}]}
+    payload = {"model": model, "max_tokens": 200, "messages": [{"role": "user", "content": prompt}]}
     try:
         with httpx.Client(timeout=15.0) as client:
             resp = client.post(url, json=payload, headers=headers)

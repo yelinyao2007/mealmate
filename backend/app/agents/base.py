@@ -81,7 +81,7 @@ class BaseAgent(ABC):
             raise
 
     def _call_llm_json(self, messages: List[Dict[str, str]], temperature: float = 0.7,
-                       max_tokens: int = 1024) -> dict:
+                       max_tokens: int = 4096) -> dict:
         """Call LLM and parse response as JSON, with timing and logging."""
         start = time.time()
         try:

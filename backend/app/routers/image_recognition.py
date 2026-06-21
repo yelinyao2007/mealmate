@@ -31,20 +31,10 @@ DEFAULT_IMAGE_PROVIDER = "moonshot"
 DEFAULT_MOONSHOT_BASE_URL = "https://api.kimi.com/coding/v1"
 DEFAULT_MOONSHOT_VISION_MODEL = "kimi-for-coding"
 
-# Legacy providers kept for backward compatibility
-DEFAULT_STEPFUN_BASE_URL = "https://api.stepfun.com/v1"
-DEFAULT_STEPFUN_PLAN_BASE_URL = "https://api.stepfun.com/v1"
-DEFAULT_STEPFUN_VISION_MODEL = "step-1o-turbo-vision"
-STEPFUN_KNOWN_NON_VISION_MODELS = {
-    "step-3.5-flash",
-    "step-3.5-flash-2603",
-    "stepaudio-2.5-tts",
-    "stepaudio-2.5-asr",
-    "step-router-v1",
-    "stepaudio-2.5-chat",
-    "step-image-edit-2",
-    "stepaudio-2.5-realtime",
-}
+# StepFun-compatible provider (currently Xiaomi MiMo via OpenAI-compatible API)
+DEFAULT_STEPFUN_BASE_URL = "https://api.xiaomimimo.com/v1"
+DEFAULT_STEPFUN_PLAN_BASE_URL = "https://api.xiaomimimo.com/v1"
+DEFAULT_STEPFUN_VISION_MODEL = "mimo-v2.5"
 
 DEFAULT_LONGCAT_BASE_URL = "https://api.longcat.chat"
 DEFAULT_LONGCAT_VISION_MODEL = "LongCat-Flash-Chat"
@@ -156,17 +146,7 @@ def _stepfun_api_key() -> str:
 
 
 def _stepfun_model() -> str:
-    if _demo_mode_enabled():
-        return os.getenv("STEPFUN_VISION_MODEL", DEFAULT_STEPFUN_VISION_MODEL).strip() or DEFAULT_STEPFUN_VISION_MODEL
-
-    raw_models = os.getenv("STEPFUN_DEFAULT_MODELS", "").strip()
-    if not raw_models:
-        return DEFAULT_STEPFUN_VISION_MODEL
-
-    for candidate in [item.strip() for item in raw_models.split(",")]:
-        if candidate:
-            return candidate
-    return DEFAULT_STEPFUN_VISION_MODEL
+    return os.getenv("STEPFUN_VISION_MODEL", DEFAULT_STEPFUN_VISION_MODEL).strip() or DEFAULT_STEPFUN_VISION_MODEL
 
 
 def _longcat_base_url() -> str:
@@ -313,9 +293,6 @@ async def _call_stepfun_image(image_base64: str, content_type: str, prompt: str)
         raise RuntimeError("STEPFUN_API_KEY is not configured")
 
     model = _stepfun_model()
-    if model in STEPFUN_KNOWN_NON_VISION_MODELS:
-        raise RuntimeError(f"Configured StepFun model does not support image input: {model}")
-
     url = f"{_stepfun_base_url()}/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",

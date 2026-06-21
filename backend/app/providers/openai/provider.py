@@ -75,8 +75,10 @@ class OpenAILLMProvider(LLMProvider):
             "model": self.model,
             "messages": processed_messages,
             "temperature": temperature,
-            "max_tokens": max_tokens
+            "max_tokens": max_tokens,
         }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
 
         try:
             resp = await self._client.post(url, json=payload, headers=headers)

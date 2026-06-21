@@ -94,7 +94,14 @@ export default function WorkflowDashboard() {
   const loadExecution = async (id) => {
     try {
       const res = await api.get(`/workflow/${id}`);
-      setCurrentResult(res.data);
+      const adaptedResult = {
+        status: res.data.status === 'completed' ? 'success' : 'error',
+        result_data: res.data.output_data || res.data.result_data || {},
+        steps_log: res.data.steps_log || [],
+        total_duration_ms: res.data.total_duration_ms || 0,
+        error_message: res.data.error_message,
+      };
+      setCurrentResult(adaptedResult);
       setActiveTab('result');
     } catch (err) {
       console.error('Failed to load execution', err);
@@ -452,6 +459,16 @@ function WorkflowResultView({ result, t }) {
 function ResultDataRenderer({ data, sectionKey }) {
   if (!data) return null;
 
+  // Unwrap raw_response if the LLM JSON parsing failed on the server side
+  if (data.raw_response && typeof data.raw_response === 'string') {
+    try {
+      const parsed = JSON.parse(data.raw_response);
+      data = parsed;
+    } catch (e) {
+      // Keep original data if parsing fails
+    }
+  }
+
   // Menu Plan renderer
   if (sectionKey === 'menu_plan' && data.weekly_menu) {
     return (
@@ -535,46 +552,147 @@ function ResultDataRenderer({ data, sectionKey }) {
   }
 
   // Procurement renderer
-  if (sectionKey === 'procurement' && data.procurement_list) {
+  if (sectionKey === 'procurement') {
+    const list = data.procurement_list || data;
+    const totalBudget = data.total_budget || data.total_budget_per_person_per_day;
+    if (!list || (typeof list === 'object' && Object.keys(list).length === 0)) return null;
     return (
       <div className="space-y-4">
-        {data.total_budget && (
+        {totalBudget && (
           <div className="bg-terracotta/10 p-4 rounded-xl flex items-center justify-between">
             <span className="font-medium">总预算</span>
-            <span className="text-xl font-bold text-terracotta">¥{data.total_budget}</span>
+            <span className="text-xl font-bold text-terracotta">¥{totalBudget}</span>
           </div>
         )}
-        <div className="space-y-2">
-          {data.procurement_list.map((item, i) => (
-            <div key={i} className="flex items-center justify-between p-2 bg-cream rounded-lg">
-              <span className="text-sm">{item.ingredient}</span>
-              <span className="text-sm font-medium">{item.quantity} {item.unit}</span>
-            </div>
-          ))}
-        </div>
+        {data.storage_notes && (
+          <p className="text-sm text-charcoal/70 bg-gold/10 p-3 rounded-lg">{data.storage_notes}</p>
+        )}
+        {Array.isArray(list) ? (
+          <div className="space-y-2">
+            {list.map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-2 bg-cream rounded-lg">
+                <span className="text-sm">{item.name || item.ingredient}</span>
+                <span className="text-sm font-medium">{item.quantity}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {Object.entries(list).map(([category, items]) => (
+              <div key={category}>
+                <h4 className="font-heading text-sm text-terracotta mb-2">{category}</h4>
+                {Array.isArray(items) && items.length > 0 ? (
+                  <div className="space-y-1">
+                    {items.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-cream rounded-lg">
+                        <span className="text-sm">{item.name || item.ingredient}</span>
+                        <span className="text-sm font-medium">{item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-2 bg-cream rounded-lg">
+                    <span className="text-sm">{items}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {data.waste_reduction_tips && (
+          <div className="bg-sage/10 p-3 rounded-lg">
+            <h4 className="font-medium text-sm mb-1">减少浪费建议</h4>
+            <ul className="text-sm text-charcoal/70 list-disc ml-4">
+              {data.waste_reduction_tips.map((tip, i) => <li key={i}>{tip}</li>)}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }
 
   // Meal Customization renderer
   if (sectionKey === 'meal_customization') {
+    const plans = data.customized_plans || data.customization_plans;
+    const notes = data.customization_notes || data.general_notes || data.delivery_suggestions;
+    if (!plans && !notes) return null;
     return (
       <div className="space-y-4">
-        {data.customization_notes && (
+        {notes && (
           <div className="bg-gold/10 p-4 rounded-xl">
-            <h4 className="font-medium mb-2">定制化建议</h4>
-            <p className="text-sm text-charcoal/70">{data.customization_notes}</p>
+            <h4 className="font-medium mb-2">定制说明</h4>
+            <p className="text-sm text-charcoal/70">{typeof notes === 'string' ? notes : JSON.stringify(notes)}</p>
           </div>
         )}
-        {data.adjusted_meals && (
-          <div className="space-y-2">
-            <h4 className="font-medium">调整后的餐食</h4>
-            {Object.entries(data.adjusted_meals).map(([mealType, adjustments]) => (
-              <div key={mealType} className="p-2 bg-cream rounded-lg">
-                <span className="font-medium text-sm">{mealType}：</span>
-                <span className="text-sm text-charcoal/70">{adjustments}</span>
+        {plans && Array.isArray(plans) && plans.map((plan, i) => (
+          <div key={i} className="border rounded-xl p-3">
+            <h4 className="font-heading text-base text-terracotta mb-2">{plan.target_group || plan.target || `方案${i + 1}`}</h4>
+            {plan.modifications && (
+              <p className="text-sm text-charcoal/70 mb-2">{plan.modifications}</p>
+            )}
+            {plan.nutrition_notes && (
+              <p className="text-sm text-sage mb-2">营养提示：{plan.nutrition_notes}</p>
+            )}
+            {plan.preparation_tips && (
+              <p className="text-sm text-gold mb-2">备餐建议：{plan.preparation_tips}</p>
+            )}
+            {plan.daily_plans && Object.entries(plan.daily_plans).map(([day, meals]) => (
+              <div key={day} className="ml-2 mb-2">
+                <span className="font-medium text-sm">{day}：</span>
+                {typeof meals === 'object' ? (
+                  <div className="ml-2 text-sm text-charcoal/70">
+                    {Object.entries(meals).map(([mealType, mealData]) => (
+                      <div key={mealType}>
+                        <span className="font-medium">{mealType}：</span>
+                        {typeof mealData === 'object' ? (
+                          <div className="ml-2">{Object.entries(mealData).map(([k, v]) => (
+                            <div key={k}>{k}：{Array.isArray(v) ? v.join('、') : String(v)}</div>
+                          ))}</div>
+                        ) : (
+                          String(mealData)
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-charcoal/70">{String(meals)}</span>
+                )}
               </div>
             ))}
+            {plan.safety_reminders && (
+              <div className="bg-red-50 p-2 rounded-lg mt-2">
+                <span className="text-sm text-red-500 font-medium">安全提醒：</span>
+                <ul className="text-sm text-red-400 list-disc ml-4">
+                  {plan.safety_reminders.map((r, j) => <li key={j}>{r}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
+        {plans && !Array.isArray(plans) && (
+          <div className="space-y-2">
+            {Object.entries(plans).map(([group, details]) => (
+              <div key={group} className="border rounded-xl p-3">
+                <h4 className="font-heading text-base text-terracotta mb-2">{group}</h4>
+                {typeof details === 'object' ? (
+                  <div className="text-sm text-charcoal/70 space-y-1">
+                    {Object.entries(details).map(([k, v]) => (
+                      <div key={k}><span className="font-medium">{k}：</span>{String(v)}</div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-charcoal/70">{String(details)}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {data.safety_reminders && (
+          <div className="bg-red-50 p-3 rounded-lg">
+            <h4 className="font-medium text-sm mb-1">安全提醒</h4>
+            <ul className="text-sm text-red-400 list-disc ml-4">
+              {data.safety_reminders.map((r, i) => <li key={i}>{r}</li>)}
+            </ul>
           </div>
         )}
       </div>
