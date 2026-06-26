@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1.2" y2="1.2">
-          <stop offset="0%" stop-color="#3D1E1E" />
-          <stop offset="100%" stop-color="#5C2A2A" />
+          <stop offset="0%" stop-color="#6f241d" />
+          <stop offset="100%" stop-color="#c84d34" />
         </linearGradient>
         <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgba(255,250,241,0.97)" />
@@ -59,17 +59,17 @@
       <rect x="640" y="120" width="500" height="660" rx="40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
 
       <!-- Category badge -->
-      <rect x="670" y="145" width="100" height="30" rx="15" fill="#C73E3E"/>
+      <rect x="670" y="145" width="100" height="30" rx="15" fill="#f4b65d"/>
       <text x="720" y="165" font-size="14" fill="#fff" text-anchor="middle" font-weight="600"
             font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">今日推荐</text>
 
       <!-- Title -->
       <text x="670" y="230" font-size="48" font-weight="800" fill="#2d1810"
-            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">红烧排骨</text>
+            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">番茄炒蛋</text>
 
       <!-- Description -->
       <text x="670" y="280" font-size="20" fill="#7a5a48"
-            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">经典家常菜，色泽红亮，肉质酥烂</text>
+            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">酸甜多汁的番茄裹着嫩滑的鸡蛋，中国家庭餐桌上的永恒主角</text>
 
       <!-- Divider -->
       <line x1="670" y1="310" x2="1110" y2="310" stroke="rgba(45,24,16,0.08)" stroke-width="1"/>
@@ -80,27 +80,30 @@
       
         <rect x="690" y="510" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="775" y="534" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">排骨500g</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">番茄 2个</text>
         <rect x="875" y="510" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="960" y="534" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">冰糖20g</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">鸡蛋 3个</text>
         <rect x="690" y="560" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="775" y="584" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">生抽15ml</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">食用油 适量</text>
         <rect x="875" y="560" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="960" y="584" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">老抽5ml</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">盐 少许</text>
         <rect x="690" y="610" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="775" y="634" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">姜3片</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">白糖 半勺（提鲜秘诀！）</text>
+        <rect x="875" y="610" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
+        <text x="960" y="634" font-size="16" fill="#fff8eb" text-anchor="middle"
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">葱花 可选</text>
 
       <!-- MealMate branding -->
-      <rect x="670" y="680" width="160" height="44" rx="22" fill="#C73E3E" opacity="0.15"/>
-      <text x="750" y="708" font-size="16" font-weight="700" fill="#C73E3E" text-anchor="middle"
+      <rect x="670" y="680" width="160" height="44" rx="22" fill="#f4b65d" opacity="0.15"/>
+      <text x="750" y="708" font-size="16" font-weight="700" fill="#f4b65d" text-anchor="middle"
             font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">MealMate</text>
 
       <!-- Decorative dots -->
-      <circle cx="670" cy="750" r="4" fill="#C73E3E" opacity="0.3"/>
-      <circle cx="690" cy="750" r="4" fill="#C73E3E" opacity="0.3"/>
-      <circle cx="710" cy="750" r="4" fill="#C73E3E" opacity="0.3"/>
+      <circle cx="670" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
+      <circle cx="690" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
+      <circle cx="710" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
     </svg>

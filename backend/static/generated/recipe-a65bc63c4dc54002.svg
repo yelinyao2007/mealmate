@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1.2" y2="1.2">
-          <stop offset="0%" stop-color="#FDF6E3" />
-          <stop offset="100%" stop-color="#F5E6D3" />
+          <stop offset="0%" stop-color="#6f241d" />
+          <stop offset="100%" stop-color="#c84d34" />
         </linearGradient>
         <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgba(255,250,241,0.97)" />
@@ -35,21 +35,22 @@
         <ellipse cx="420" cy="320" rx="172" ry="118" fill="rgba(0,0,0,0.12)"/>
         <!-- Plate -->
         
-        <ellipse cx="420" cy="310" rx="155" ry="108" fill="#f7f1e5"/>
-        <ellipse cx="420" cy="310" rx="135" ry="94" fill="#fffaf0"/>
-        <ellipse cx="420" cy="310" rx="145" ry="100" fill="none" stroke="#d4c5b2" stroke-width="2"/>
-        <ellipse cx="420" cy="325" rx="105" ry="50" fill="#d4b896"/>
-        <ellipse cx="420" cy="325" rx="100" ry="46" fill="#f0dbb8"/>
-        <ellipse cx="420" cy="318" rx="90" ry="38" fill="#d9a95a"/>
-        <ellipse cx="420" cy="316" rx="85" ry="34" fill="#e8c07a"/>
-        <circle cx="390" cy="308" r="10" fill="#d48c4a"/>
-        <circle cx="445" cy="320" r="8" fill="#b8723a"/>
-        <circle cx="415" cy="330" r="7" fill="#5a8a3c"/>
-        <circle cx="375" cy="325" r="6" fill="#d48c4a"/>
-        <circle cx="455" cy="305" r="5" fill="#5a8a3c"/>
-        <path d="M400 260 C395 240, 405 225, 398 210" stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none"/>
-        <path d="M430 255 C425 235, 435 220, 428 205" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none"/>
-        <path d="M415 250 C410 230, 420 215, 413 200" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+        <ellipse cx="420" cy="305" rx="160" ry="110" fill="#f7f1e5"/>
+        <ellipse cx="420" cy="305" rx="140" ry="96" fill="#fffaf0"/>
+        <ellipse cx="420" cy="305" rx="150" ry="103" fill="none" stroke="#d4c5b2" stroke-width="2"/>
+        <ellipse cx="380" cy="278" rx="50" ry="30" fill="#8b3a25" transform="rotate(-10 380 278)"/>
+        <ellipse cx="380" cy="278" rx="44" ry="24" fill="#a84e32" transform="rotate(-10 380 278)"/>
+        <ellipse cx="450" cy="310" rx="55" ry="32" fill="#7a2e1a" transform="rotate(8 450 310)"/>
+        <ellipse cx="450" cy="310" rx="48" ry="26" fill="#9e452a" transform="rotate(8 450 310)"/>
+        <ellipse cx="410" cy="340" rx="45" ry="26" fill="#8f3d25" transform="rotate(-5 410 340)"/>
+        <ellipse cx="410" cy="340" rx="40" ry="22" fill="#b05335" transform="rotate(-5 410 340)"/>
+        <ellipse cx="395" cy="305" rx="25" ry="8" fill="rgba(139,58,37,0.6)"/>
+        <ellipse cx="440" cy="328" rx="20" ry="6" fill="rgba(122,46,26,0.5)"/>
+        <circle cx="355" cy="260" r="5" fill="#5a8a3c"/>
+        <circle cx="470" cy="290" r="4" fill="#5a8a3c"/>
+        <circle cx="390" cy="355" r="4" fill="#5a8a3c"/>
+        <path d="M400 230 Q395 210 405 195" stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none"/>
+        <path d="M430 225 Q425 200 435 185" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" fill="none"/>
         
       </g>
 
@@ -58,17 +59,17 @@
       <rect x="640" y="120" width="500" height="660" rx="40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
 
       <!-- Category badge -->
-      <rect x="670" y="145" width="100" height="30" rx="15" fill="#E85D4E"/>
+      <rect x="670" y="145" width="100" height="30" rx="15" fill="#f4b65d"/>
       <text x="720" y="165" font-size="14" fill="#fff" text-anchor="middle" font-weight="600"
             font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">今日推荐</text>
 
       <!-- Title -->
       <text x="670" y="230" font-size="48" font-weight="800" fill="#2d1810"
-            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">蛋花汤</text>
+            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">番茄炒蛋</text>
 
       <!-- Description -->
       <text x="670" y="280" font-size="20" fill="#7a5a48"
-            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">清淡爽口，暖胃好汤</text>
+            font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">酸甜鲜香的国民家常菜，米饭杀手本手</text>
 
       <!-- Divider -->
       <line x1="670" y1="310" x2="1110" y2="310" stroke="rgba(45,24,16,0.08)" stroke-width="1"/>
@@ -79,21 +80,27 @@
       
         <rect x="690" y="510" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="775" y="534" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">鸡蛋2个</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">番茄 2个</text>
         <rect x="875" y="510" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="960" y="534" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">番茄1个</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">鸡蛋 3个</text>
         <rect x="690" y="560" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
         <text x="775" y="584" font-size="16" fill="#fff8eb" text-anchor="middle"
-              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">葱花</text>
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">盐 适量</text>
+        <rect x="875" y="560" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
+        <text x="960" y="584" font-size="16" fill="#fff8eb" text-anchor="middle"
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">糖 1小勺</text>
+        <rect x="690" y="610" width="170" height="36" rx="18" fill="rgba(255,250,241,0.25)"/>
+        <text x="775" y="634" font-size="16" fill="#fff8eb" text-anchor="middle"
+              font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">葱花 少许</text>
 
       <!-- MealMate branding -->
-      <rect x="670" y="680" width="160" height="44" rx="22" fill="#E85D4E" opacity="0.15"/>
-      <text x="750" y="708" font-size="16" font-weight="700" fill="#E85D4E" text-anchor="middle"
+      <rect x="670" y="680" width="160" height="44" rx="22" fill="#f4b65d" opacity="0.15"/>
+      <text x="750" y="708" font-size="16" font-weight="700" fill="#f4b65d" text-anchor="middle"
             font-family="'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif">MealMate</text>
 
       <!-- Decorative dots -->
-      <circle cx="670" cy="750" r="4" fill="#E85D4E" opacity="0.3"/>
-      <circle cx="690" cy="750" r="4" fill="#E85D4E" opacity="0.3"/>
-      <circle cx="710" cy="750" r="4" fill="#E85D4E" opacity="0.3"/>
+      <circle cx="670" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
+      <circle cx="690" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
+      <circle cx="710" cy="750" r="4" fill="#f4b65d" opacity="0.3"/>
     </svg>
