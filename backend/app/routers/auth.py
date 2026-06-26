@@ -24,6 +24,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             password_hash=hash_password(req.password),
             name=req.name or "",
             preferences={"dietary": [], "allergies": [], "skill_level": "beginner", "cuisines": []},
+            health_conditions=[],
         )
         db.add(user)
         db.commit()
@@ -58,7 +59,20 @@ def update_me(req: UserUpdate, current_user: User = Depends(get_current_user), d
     if req.avatar_url is not None:
         current_user.avatar_url = req.avatar_url
     if req.preferences is not None:
-        current_user.preferences = req.preferences.dict()
+        current_user.preferences = req.preferences.model_dump()
+    if req.profile is not None:
+        if req.profile.height is not None:
+            current_user.height = req.profile.height
+        if req.profile.weight is not None:
+            current_user.weight = req.profile.weight
+        if req.profile.age is not None:
+            current_user.age = req.profile.age
+        if req.profile.goal is not None:
+            current_user.goal = req.profile.goal
+        if req.profile.target_calories is not None:
+            current_user.target_calories = req.profile.target_calories
+        if req.profile.health_conditions is not None:
+            current_user.health_conditions = req.profile.health_conditions
     db.commit()
     db.refresh(current_user)
     return current_user

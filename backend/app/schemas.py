@@ -35,7 +35,26 @@ class UserOut(BaseModel):
     avatar_url: str
     preferences: Any
     ai_memory: Any = None
+    language: str = "en"
+    height: float = 0.0
+    weight: float = 0.0
+    age: int = 0
+    goal: str = ""
+    target_calories: int = 0
+    health_conditions: Any = []
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UserProfile(BaseModel):
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    age: Optional[int] = None
+    goal: Optional[str] = None  # lose_fat / gain_muscle / sugar_control / general
+    target_calories: Optional[int] = None
+    health_conditions: Optional[List[str]] = None
 
     class Config:
         from_attributes = True
@@ -45,6 +64,7 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     avatar_url: Optional[str] = None
     preferences: Optional[UserPreferences] = None
+    profile: Optional[UserProfile] = None
 
 
 # ── Recipe ──

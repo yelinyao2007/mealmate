@@ -760,6 +760,10 @@ def detect_agent_type(messages: list) -> str:
             break
     system_msg_lower = system_msg.lower()
 
+    # Check for ProfileAgent (user health profile analysis)
+    if "健康营养顾问" in system_msg or "profile agent" in system_msg_lower:
+        return "profile_agent"
+
     # Check for MealMate AI Chef (conversational recipe chat)
     if "mealmate" in system_msg_lower and ("ai 大厨" in system_msg_lower or "ai chef" in system_msg_lower or "冰箱里" in system_msg):
         return "agent1_direct_chef"
@@ -833,6 +837,108 @@ def extract_params_from_messages(messages: list) -> dict:
     return params
 
 
+def _build_profile_analysis(messages: list) -> dict:
+    """Generate a realistic profile analysis response."""
+    user_msg = ""
+    for m in messages:
+        if m.get("role") == "user":
+            user_msg = m.get("content", "")
+            break
+
+    height_match = re.search(r"身高[：:]\s*(\d+\.?\d*)", user_msg)
+    weight_match = re.search(r"体重[：:]\s*(\d+\.?\d*)", user_msg)
+    age_match = re.search(r"年龄[：:]\s*(\d+)", user_msg)
+
+    height = float(height_match.group(1)) if height_match else 170
+    weight = float(weight_match.group(1)) if weight_match else 65
+    age = int(age_match.group(1)) if age_match else 28
+    bmi = round(weight / ((height / 100) ** 2), 1)
+
+    if bmi < 18.5:
+        bmi_category = "偏瘦"
+    elif bmi < 24:
+        bmi_category = "正常"
+    elif bmi < 28:
+        bmi_category = "偏胖"
+    else:
+        bmi_category = "肥胖"
+
+    goal = ""
+    if "减脂" in user_msg or "lose_fat" in user_msg:
+        goal = "减脂"
+        recommended_calories = max(1500, int((weight * 22) - 300))
+        calorie_deficit = 300
+        macro_targets = {"protein_g": int(weight * 2.0), "fat_g": 50, "carbs_g": int(recommended_calories * 0.4 / 4), "fiber_g": 30}
+        key_principles = [
+            "控制总热量摄入，每日热量缺口300-500千卡",
+            "增加蛋白质摄入至" + str(macro_targets["protein_g"]) + "g/天，保护肌肉不流失",
+            "减少精制碳水和添加糖，多选择全谷物和蔬菜",
+            "每周进行3-5次有氧运动，每次30-45分钟",
+        ]
+    elif "增肌" in user_msg or "gain_muscle" in user_msg:
+        goal = "增肌"
+        recommended_calories = int(weight * 30 + 300)
+        calorie_deficit = 0
+        macro_targets = {"protein_g": int(weight * 2.2), "fat_g": 65, "carbs_g": int(recommended_calories * 0.45 / 4), "fiber_g": 30}
+        key_principles = [
+            "保证热量盈余300-500千卡，支持肌肉合成",
+            "每日蛋白质摄入" + str(macro_targets["protein_g"]) + "g，均匀分配到每餐",
+            "配合力量训练，每周4-5次，确保蛋白质利用效率",
+            "碳水化合物集中在训练前后摄入",
+        ]
+    elif "控糖" in user_msg or "sugar_control" in user_msg:
+        goal = "控糖"
+        recommended_calories = max(1500, int(weight * 25))
+        calorie_deficit = 0
+        macro_targets = {"protein_g": int(weight * 1.5), "fat_g": 55, "carbs_g": int(recommended_calories * 0.35 / 4), "fiber_g": 35}
+        key_principles = [
+            "选择低GI食材，避免血糖剧烈波动",
+            "每餐碳水控制在40-50g，少食多餐",
+            "增加膳食纤维至35g/天，延缓糖分吸收",
+            "餐后30分钟轻度运动，有助于血糖控制",
+        ]
+    else:
+        goal = "一般健康"
+        recommended_calories = int(weight * 28)
+        calorie_deficit = 0
+        macro_targets = {"protein_g": int(weight * 1.2), "fat_g": 60, "carbs_g": int(recommended_calories * 0.5 / 4), "fiber_g": 25}
+        key_principles = [
+            "均衡营养，五谷为养，五果为助",
+            "肉类选择去肥瘦肉，鱼类每周2-3次",
+            "每日蔬菜500g以上，水果200-300g",
+            "保持规律作息，每周适量运动",
+        ]
+
+    health_warnings = []
+    if "高血压" in user_msg or "hypertension" in user_msg:
+        health_warnings.append("注意低盐饮食，每日食盐不超过5g")
+        health_warnings.append("避免腌制食品和加工肉类")
+    if "糖尿病" in user_msg or "diabetes" in user_msg:
+        health_warnings.append("严格控制碳水化合物摄入，选择低GI食物")
+        health_warnings.append("餐后2小时监测血糖，保持血糖稳定")
+
+    return {
+        "bmi": bmi,
+        "bmi_category": bmi_category,
+        "recommended_calories": recommended_calories,
+        "macro_targets": macro_targets,
+        "goal_analysis": {
+            "goal": goal,
+            "calorie_deficit": calorie_deficit,
+            "expected_weekly_loss_kg": round(calorie_deficit * 7 / 7700, 1) if calorie_deficit > 0 else 0,
+            "key_principles": key_principles,
+        },
+        "health_warnings": health_warnings if health_warnings else ["暂无特殊健康预警，保持良好生活习惯"],
+        "weekly_core_principles": [
+            f"每日摄入{recommended_calories}千卡",
+            f"蛋白质占比{round(macro_targets['protein_g'] * 4 / recommended_calories * 100)}%",
+            "多食用全谷物和新鲜蔬菜",
+            "控制加工食品和添加糖的摄入",
+        ],
+        "summary": f"根据你的BMI {bmi}（{bmi_category}范围），建议每日摄入{recommended_calories}千卡，蛋白质{macro_targets['protein_g']}g，脂肪{macro_targets['fat_g']}g，碳水化合物{macro_targets['carbs_g']}g。目标为{goal}，请结合运动实现最佳效果。",
+    }
+
+
 def generate_demo_response(messages: list) -> str:
     """Generate a demo response based on the detected agent type and parameters."""
     agent_type = detect_agent_type(messages)
@@ -846,6 +952,8 @@ def generate_demo_response(messages: list) -> str:
         data = _build_agent2_response(messages)
     elif agent_type == "agent3_weekly_planner":
         data = _build_agent3_response(messages)
+    elif agent_type == "profile_agent":
+        data = _build_profile_analysis(messages)
     # Legacy agent types
     elif agent_type == "menu_planner":
         data = _build_menu(params["season"], params["budget"], params["dietary"])

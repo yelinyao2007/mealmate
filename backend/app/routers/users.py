@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import User, Follow
 from app.schemas import UserOut, UserUpdate
 from app.auth import get_current_user
+from app.agents.profile import ProfileAgent
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -27,6 +28,19 @@ def update_profile(req: UserUpdate, current_user: User = Depends(get_current_use
         current_user.avatar_url = req.avatar_url
     if req.preferences is not None:
         current_user.preferences = req.preferences.model_dump()
+    if req.profile is not None:
+        if req.profile.height is not None:
+            current_user.height = req.profile.height
+        if req.profile.weight is not None:
+            current_user.weight = req.profile.weight
+        if req.profile.age is not None:
+            current_user.age = req.profile.age
+        if req.profile.goal is not None:
+            current_user.goal = req.profile.goal
+        if req.profile.target_calories is not None:
+            current_user.target_calories = req.profile.target_calories
+        if req.profile.health_conditions is not None:
+            current_user.health_conditions = req.profile.health_conditions
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -85,3 +99,23 @@ def update_language(lang: str, current_user: User = Depends(get_current_user), d
     db.commit()
     db.refresh(current_user)
     return {"language": current_user.language}
+
+
+@router.post("/me/analyze-profile")
+def analyze_profile(current_user: User = Depends(get_current_user)):
+    """Analyze user's health profile using ProfileAgent and return recommendations."""
+    agent = ProfileAgent()
+    result = agent.run({
+        "height": current_user.height or 0,
+        "weight": current_user.weight or 0,
+        "age": current_user.age or 0,
+        "goal": current_user.goal or "",
+        "target_calories": current_user.target_calories or 0,
+        "health_conditions": current_user.health_conditions or [],
+        "preferences": current_user.preferences or {},
+    })
+    return {
+        "success": result.success,
+        "data": result.data,
+        "error": result.error,
+    }
