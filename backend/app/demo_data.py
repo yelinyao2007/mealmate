@@ -764,6 +764,10 @@ def detect_agent_type(messages: list) -> str:
     if "健康营养顾问" in system_msg or "profile agent" in system_msg_lower:
         return "profile_agent"
 
+    # Check for SmartChefAgent (smart cooking orchestration)
+    if "智能大厨" in system_msg or "smart chef" in system_msg_lower:
+        return "smart_chef_agent"
+
     # Check for MealMate AI Chef (conversational recipe chat)
     if "mealmate" in system_msg_lower and ("ai 大厨" in system_msg_lower or "ai chef" in system_msg_lower or "冰箱里" in system_msg):
         return "agent1_direct_chef"
@@ -939,6 +943,46 @@ def _build_profile_analysis(messages: list) -> dict:
     }
 
 
+def _build_smart_chef_demo(messages: list) -> dict:
+    """Generate a demo Smart Chef response."""
+    return {
+        "user_intent": {
+            "goal": "控糖减脂",
+            "mood": "加班疲惫",
+            "ingredients": ["番茄", "鸡蛋"],
+            "temperature": "热乎的"
+        },
+        "profile_check": {
+            "bmi": 23.5,
+            "goal": "lose_fat",
+            "calorie_budget_per_meal": 500,
+            "health_alerts": ["控糖: 禁用白米白面白糖", "减脂: 每餐热量≤500kcal"]
+        },
+        "recipe": {
+            "title": "低GI番茄蛋花汤配全麦馒头",
+            "description": "暖胃暖心的控糖减脂晚餐",
+            "vibe": "加班后的治愈系",
+            "time_minutes": 15,
+            "difficulty": "简单",
+            "calories_estimate": 450,
+            "gi_level": "低GI",
+            "ingredients": ["番茄 2个", "鸡蛋 2个", "全麦面粉 100g", "盐 少许", "香油 几滴", "葱花 少许"],
+            "steps": [
+                "番茄切小块；鸡蛋打散加少许盐搅匀",
+                "锅中火加热，放少许油，下番茄块炒出汁（约2分钟）",
+                "加入600ml热水，大火煮开",
+                "转小火，沿锅边缓缓倒入蛋液，先别搅动，等10秒蛋花浮起",
+                "加盐调味，撒葱花，滴几滴香油出锅",
+                "全麦面粉+酵母+温水揉成面团，醒发20分钟，蒸8分钟即可"
+            ],
+            "nutrition": {"calories": 450, "protein_g": 22, "fat_g": 12, "carbs_g": 55, "fiber_g": 6},
+            "tips": "番茄先炒出汁再加水，汤底更浓郁；全麦馒头可以提前一天做好，加热即食"
+        },
+        "chef_chat": "加班辛苦了！我用你的番茄和鸡蛋做了一碗低GI番茄蛋花汤，配上全麦小馒头，暖暖的又控糖~ 番茄的酸甜加上蛋花的嫩滑，喝完肯定舒服！关键是15分钟就能搞定，不耽误你休息~ 🍅🥚",
+        "health_notes": "本餐热量450kcal，在控糖减脂预算内。全麦馒头替代白面，GI值低，不会引起血糖波动。番茄富含番茄红素和维生素C，鸡蛋提供优质蛋白质。"
+    }
+
+
 def generate_demo_response(messages: list) -> str:
     """Generate a demo response based on the detected agent type and parameters."""
     agent_type = detect_agent_type(messages)
@@ -954,6 +998,8 @@ def generate_demo_response(messages: list) -> str:
         data = _build_agent3_response(messages)
     elif agent_type == "profile_agent":
         data = _build_profile_analysis(messages)
+    elif agent_type == "smart_chef_agent":
+        data = _build_smart_chef_demo(messages)
     # Legacy agent types
     elif agent_type == "menu_planner":
         data = _build_menu(params["season"], params["budget"], params["dietary"])

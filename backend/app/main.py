@@ -13,7 +13,7 @@ if _env_path.exists():
     load_dotenv(_env_path)
 
 from app.database import engine, Base, _db_url
-from app.routers import auth, users, recipes, ai, social, bookmarks, notifications, workflow, agent1, agent2, agent3, i18n, image_recognition
+from app.routers import auth, users, recipes, ai, social, bookmarks, notifications, workflow, agent1, agent2, agent3, i18n, image_recognition, smart_chef
 
 # Log which database is being used
 print(f"[INFO] Using database: {_db_url[:50]}...")
@@ -51,6 +51,7 @@ app.include_router(agent2.router)
 app.include_router(agent3.router)
 app.include_router(i18n.router)
 app.include_router(image_recognition.router)
+app.include_router(smart_chef.router)
 
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")
 static_dir = os.path.normpath(static_dir)

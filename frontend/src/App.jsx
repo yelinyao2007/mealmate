@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AIChef from './pages/AIChef';
+import SmartCook from './pages/SmartCook';
 import RecipeFeed from './pages/RecipeFeed';
 import RecipeDetail from './pages/RecipeDetail';
 import CreateRecipe from './pages/CreateRecipe';
@@ -50,6 +51,10 @@ export default function App() {
         <Route
           path="/ai"
           element={<ProtectedRoute><AIChef /></ProtectedRoute>}
+        />
+        <Route
+          path="/smart-cook"
+          element={<ProtectedRoute><SmartCook /></ProtectedRoute>}
         />
         <Route
           path="/image"
