@@ -17,6 +17,12 @@ class User(Base):
     preferences = Column(JSON, default=dict)
     ai_memory = Column(JSON, default=dict)  # Agent 2 writes taste patterns here
     language = Column(String(10), default="en")  # User's language preference
+    height = Column(Float, default=0.0)  # cm
+    weight = Column(Float, default=0.0)  # kg
+    age = Column(Integer, default=0)
+    goal = Column(String(50), default="")  # lose_fat / gain_muscle / sugar_control / general
+    target_calories = Column(Integer, default=0)
+    health_conditions = Column(JSON, default=list)  # ["diabetes", "hypertension"]
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     recipes = relationship("Recipe", back_populates="author", foreign_keys="Recipe.author_id")

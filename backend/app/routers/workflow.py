@@ -65,7 +65,22 @@ def execute_workflow(
         "target_population": request_data.get("target_population", "青年群体"),
         "existing_inventory": request_data.get("existing_inventory", []),
     }
-    
+
+    # Inject user profile from DB into input_data for personalized workflow
+    if current_user:
+        input_data["user_profile"] = {
+            "height": current_user.height or 0,
+            "weight": current_user.weight or 0,
+            "age": current_user.age or 0,
+            "goal": current_user.goal or "",
+            "target_calories": current_user.target_calories or 0,
+            "health_conditions": current_user.health_conditions or [],
+            "allergies": (current_user.preferences or {}).get("allergies", []),
+            "dietary": (current_user.preferences or {}).get("dietary", []),
+            "skill_level": (current_user.preferences or {}).get("skill_level", "beginner"),
+            "cuisines": (current_user.preferences or {}).get("cuisines", []),
+        }
+
     # Use demo user if not authenticated
     user_id = current_user.id if current_user else 0
     

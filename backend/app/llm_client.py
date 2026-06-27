@@ -85,7 +85,7 @@ class _SyncMultiProviderWrapper:
             json_mode=json_mode,
             stream=False,
         )
-        return self._run_async(coro, timeout=30)
+        return self._run_async(coro, timeout=120)
 
     def chat_completion_json(
         self,
@@ -96,7 +96,7 @@ class _SyncMultiProviderWrapper:
         coro = self._client.chat_completion_json(
             messages=messages, temperature=temperature, max_tokens=max_tokens
         )
-        return self._run_async(coro, timeout=30)
+        return self._run_async(coro, timeout=120)
 
     @property
     def is_demo_mode(self) -> bool:

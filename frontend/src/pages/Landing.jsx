@@ -23,7 +23,7 @@ export default function Landing() {
         </p>
         <div className="flex items-center justify-center gap-4">
           {user ? (
-            <Link to="/ai" className="btn-primary text-lg px-8 py-3">
+            <Link to="/smart-cook" className="btn-primary text-lg px-8 py-3">
               {t('landing.startCooking')}
             </Link>
           ) : (

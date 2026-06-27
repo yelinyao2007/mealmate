@@ -174,6 +174,23 @@ def _migrate_database():
         except Exception as e:
             print(f"Skipping users.language: {e}")
 
+    user_profile_migrations = [
+        ("height", "ALTER TABLE users ADD COLUMN height REAL DEFAULT 0.0"),
+        ("weight", "ALTER TABLE users ADD COLUMN weight REAL DEFAULT 0.0"),
+        ("age", "ALTER TABLE users ADD COLUMN age INTEGER DEFAULT 0"),
+        ("goal", "ALTER TABLE users ADD COLUMN goal VARCHAR(50) DEFAULT ''"),
+        ("target_calories", "ALTER TABLE users ADD COLUMN target_calories INTEGER DEFAULT 0"),
+        ("health_conditions", "ALTER TABLE users ADD COLUMN health_conditions JSON DEFAULT '[]'"),
+    ]
+
+    for col_name, sql in user_profile_migrations:
+        if col_name not in user_cols:
+            try:
+                cursor.execute(sql)
+                print(f"Migrated users: added {col_name}")
+            except Exception as e:
+                print(f"Skipping users.{col_name}: {e}")
+
     cursor.execute("PRAGMA table_info(saved_recipes)")
     saved_cols = {row[1] for row in cursor.fetchall()}
 

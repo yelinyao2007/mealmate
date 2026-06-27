@@ -53,7 +53,8 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-1">
           <NavLink to="/feed" icon={<Home size={18} />} label={t('nav.feed')} />
           {user && <NavLink to="/workflow" icon={<Zap size={18} />} label={t('nav.workflow')} />}
-          {user && <NavLink to="/ai" icon={<Sparkles size={18} />} label={t('nav.aiChef')} />}
+          {user && <NavLink to="/smart-cook" icon={<Sparkles size={18} />} label="SmartCook" />}
+          {user && <NavLink to="/ai" icon={<ChefHat size={18} />} label={t('nav.aiChef')} />}
           {user && <NavLink to="/image" icon={<Camera size={18} />} label={t('nav.imageRecog')} />}
           {user && <NavLink to="/recipes/new" icon={<BookOpen size={18} />} label={t('nav.create')} />}
           {user && <NavLink to="/bookmarks" icon={<Bookmark size={18} />} label={t('nav.saved')} />}
@@ -135,6 +136,7 @@ export default function Navbar() {
         <div className="md:hidden bg-white border-t border-gold/20 px-4 py-3 space-y-1">
           <MobileLink to="/feed" label={t('nav.feed')} onClick={() => setMenuOpen(false)} />
           {user && <MobileLink to="/workflow" label={t('nav.workflow')} onClick={() => setMenuOpen(false)} />}
+          {user && <MobileLink to="/smart-cook" label="SmartCook" onClick={() => setMenuOpen(false)} />}
           {user && <MobileLink to="/ai" label={t('nav.aiChef')} onClick={() => setMenuOpen(false)} />}
           {user && <MobileLink to="/recipes/new" label={t('nav.createRecipe')} onClick={() => setMenuOpen(false)} />}
           {user && <MobileLink to="/bookmarks" label={t('nav.saved')} onClick={() => setMenuOpen(false)} />}
