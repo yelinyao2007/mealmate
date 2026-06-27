@@ -14,6 +14,7 @@ if _env_path.exists():
 
 from app.database import engine, Base, _db_url
 from app.routers import auth, users, recipes, ai, social, bookmarks, notifications, workflow, agent1, agent2, agent3, i18n, image_recognition, smart_chef
+from app.llm_client import get_timing_interceptor
 
 # Log which database is being used
 print(f"[INFO] Using database: {_db_url[:50]}...")
@@ -52,6 +53,19 @@ app.include_router(agent3.router)
 app.include_router(i18n.router)
 app.include_router(image_recognition.router)
 app.include_router(smart_chef.router)
+
+
+@app.get("/api/debug/llm-timing")
+async def llm_timing_report():
+    """View LLM call timing report."""
+    interceptor = get_timing_interceptor()
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(interceptor.report())
+
+@app.get("/api/debug/llm-timing/reset")
+async def llm_timing_reset():
+    get_timing_interceptor().reset()
+    return {"status": "ok", "message": "Timing data reset"}
 
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")
 static_dir = os.path.normpath(static_dir)

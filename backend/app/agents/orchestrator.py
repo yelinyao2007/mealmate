@@ -8,6 +8,8 @@ autonomous multi-step workflow execution (not just simple Q&A).
 import time
 import logging
 import os
+import json
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field, asdict
@@ -205,14 +207,157 @@ class WorkflowOrchestrator:
             for meal, detail in meals.items():
                 if not isinstance(detail, dict):
                     continue
-                summary[day][meal] = {
-                    "dish_names": [
-                        *(detail.get("荤菜", [])),
-                        *(detail.get("素菜", [])),
-                    ],
-                    "cost": detail.get("estimated_cost_per_person"),
-                }
+                summary[day][meal] = [
+                    *(detail.get("荤菜", [])),
+                    *(detail.get("素菜", [])),
+                ]
         return summary
+
+    def _merge_procurement_results(self, results: list) -> dict:
+        """Merge multiple daily procurement lists into one weekly procurement list."""
+        merged = {
+            "procurement_list": {},
+            "excluded_ingredients": [],
+            "goal_adjustments": "",
+            "total_budget": 0.0,
+            "budget_per_person_per_day": 0.0,
+            "perishable_items": [],
+            "storage_notes": "",
+            "waste_reduction_tips": [],
+            "safety_warnings": [],
+            "suggested_suppliers": "",
+            "notes": "Generated from daily procurement merge",
+        }
+
+        def _parse_qty(q: str) -> tuple:
+            m = re.match(r'([\d.]+)\s*(.*)', q.strip())
+            if m:
+                return float(m.group(1)), m.group(2).strip()
+            return 0, q
+
+        def _format_qty(val: float, unit: str) -> str:
+            if val == int(val):
+                return f"{int(val)}{unit}"
+            return f"{val:.1f}{unit}"
+
+        for i, result in enumerate(results):
+            data = result.data if hasattr(result, "data") else result
+            if not data or not isinstance(data, dict):
+                continue
+
+            # Merge procurement_list by category + item name
+            for category, items in data.get("procurement_list", {}).items():
+                if not isinstance(items, list):
+                    continue
+                if category not in merged["procurement_list"]:
+                    merged["procurement_list"][category] = []
+                name_map = {}
+                for exist in merged["procurement_list"][category]:
+                    name_map[exist["name"]] = exist
+                for item in items:
+                    if not isinstance(item, dict) or "name" not in item:
+                        continue
+                    if item["name"] in name_map:
+                        old = name_map[item["name"]]
+                        v1, u1 = _parse_qty(old.get("quantity", "0"))
+                        v2, u2 = _parse_qty(item.get("quantity", "0"))
+                        if u1 == u2 or not u2:
+                            old["quantity"] = _format_qty(v1 + v2, u1 or u2)
+                        old["total_price"] = old.get("total_price", 0) + item.get("total_price", 0)
+                    else:
+                        merged["procurement_list"][category].append(dict(item))
+                        name_map[item["name"]] = merged["procurement_list"][category][-1]
+
+            # Sum budgets
+            merged["total_budget"] += data.get("total_budget", 0)
+
+            # Combine scalar lists
+            for list_field in ["excluded_ingredients", "perishable_items", "waste_reduction_tips", "safety_warnings"]:
+                items = data.get(list_field, [])
+                if isinstance(items, list):
+                    merged[list_field].extend(items)
+
+            # Keep first non-empty text fields
+            for text_field in ["goal_adjustments", "storage_notes", "suggested_suppliers"]:
+                if data.get(text_field) and not merged[text_field]:
+                    merged[text_field] = data[text_field]
+
+        # Remove duplicate warnings/notes
+        for list_field in ["excluded_ingredients", "perishable_items", "waste_reduction_tips", "safety_warnings"]:
+            seen = set()
+            unique = []
+            for item in merged[list_field]:
+                key = str(item) if isinstance(item, dict) else item
+                if key not in seen:
+                    seen.add(key)
+                    unique.append(item)
+            merged[list_field] = unique
+
+        return merged
+
+    def _merge_nutrition_results(self, results: list) -> dict:
+        """Merge daily nutrition analyses into a weekly analysis."""
+        merged = {
+            "overall_score": 0, "profile_fit_score": 0,
+            "daily_analysis": {}, "weekly_summary": {}, "profile_warnings": [],
+        }
+        scores, profile_scores = [], []
+        for result in results:
+            data = getattr(result, "data", result)
+            if not isinstance(data, dict):
+                continue
+            if isinstance(data.get("daily_analysis"), dict):
+                merged["daily_analysis"].update(data["daily_analysis"])
+            if isinstance(data.get("profile_warnings"), list):
+                merged["profile_warnings"].extend(data["profile_warnings"])
+            if data.get("overall_score"):
+                scores.append(data["overall_score"])
+            if data.get("profile_fit_score"):
+                profile_scores.append(data["profile_fit_score"])
+        merged["overall_score"] = round(sum(scores) / len(scores)) if scores else 0
+        merged["profile_fit_score"] = round(sum(profile_scores) / len(profile_scores)) if profile_scores else 0
+        for result in reversed(results):
+            data = getattr(result, "data", result)
+            if isinstance(data, dict) and data.get("weekly_summary"):
+                merged["weekly_summary"] = data["weekly_summary"]
+                break
+        seen = set()
+        merged["profile_warnings"] = [w for w in merged["profile_warnings"] if w not in seen and not seen.add(w)]
+        return merged
+
+    def _merge_customizer_results(self, results: list) -> dict:
+        """Merge daily customizations into a weekly customization plan."""
+        merged = {
+            "customized_plans": [], "delivery_suggestions": "",
+            "safety_reminders": [], "profile_based_recommendations": "",
+        }
+        group_map = {}
+        for result in results:
+            data = getattr(result, "data", result)
+            if not isinstance(data, dict):
+                continue
+            for plan in data.get("customized_plans", []):
+                if not isinstance(plan, dict):
+                    continue
+                group = plan.get("target_group", "default")
+                if group not in group_map:
+                    group_map[group] = {
+                        "target_group": group, "modifications": plan.get("modifications", ""),
+                        "daily_plans": {}, "nutrition_notes": plan.get("nutrition_notes", ""),
+                        "preparation_tips": plan.get("preparation_tips", ""),
+                    }
+                if isinstance(plan.get("daily_plans"), dict):
+                    group_map[group]["daily_plans"].update(plan["daily_plans"])
+            if data.get("safety_reminders"):
+                merged["safety_reminders"].extend(data["safety_reminders"])
+            if data.get("delivery_suggestions") and not merged["delivery_suggestions"]:
+                merged["delivery_suggestions"] = data["delivery_suggestions"]
+            if data.get("profile_based_recommendations") and not merged["profile_based_recommendations"]:
+                merged["profile_based_recommendations"] = data["profile_based_recommendations"]
+        merged["customized_plans"] = list(group_map.values())
+        seen = set()
+        merged["safety_reminders"] = [r for r in merged["safety_reminders"] if r not in seen and not seen.add(r)]
+        return merged
 
     def _full_meal_service(
         self,
@@ -309,57 +454,86 @@ class WorkflowOrchestrator:
             return WorkflowResult("full_meal_service", True, [demo_step1, demo_step2, demo_step3, demo_step4], demo_result, 0, "")
         final_output["menu_plan"] = r1.data
 
-        # Steps 2-4: Run Nutrition, Procurement, Customization IN PARALLEL
-        # All three only depend on Step 1 output, no cross-dependency
+        # Steps 2-4: Run ALL downstream agents per-day IN PARALLEL (15 tasks)
         raw_menu = r1.data.get("weekly_menu", r1.data)
         weekly_menu = raw_menu if isinstance(raw_menu, dict) else {}
-        # Use summarized menu for downstream agents (reduces prompt size ~80%)
         summarized_menu = self._summarize_menu(weekly_menu)
         user_profile = input_data.get("user_profile", {})
+        day_names = list(summarized_menu.keys())
 
-        parallel_agents = [
-            (NutritionAnalyzerAgent, {
-                "weekly_menu": summarized_menu,
+        all_parallel = []
+
+        # Nutrition: 5 daily tasks (step 2)
+        for day_name in day_names:
+            all_parallel.append((NutritionAnalyzerAgent, {
+                "weekly_menu": {day_name: summarized_menu[day_name]},
                 "target_population": input_data.get("target_population", "青年群体"),
                 "user_profile": user_profile,
-            }, 2, on_step_update),
-            (ProcurementAgent, {
-                "weekly_menu": summarized_menu,
+            }, 2, on_step_update))
+
+        # Procurement: 5 daily tasks (step 3)
+        for day_name in day_names:
+            all_parallel.append((ProcurementAgent, {
+                "weekly_menu": {day_name: summarized_menu[day_name]},
                 "num_people": input_data.get("num_people", 100),
                 "existing_inventory": input_data.get("existing_inventory", []),
                 "user_profile": user_profile,
-            }, 3, on_step_update),
-            (MealCustomizerAgent, {
-                "weekly_menu": summarized_menu,
+            }, 3, on_step_update))
+
+        # Customizer: 5 daily tasks (step 4)
+        for day_name in day_names:
+            all_parallel.append((MealCustomizerAgent, {
+                "weekly_menu": {day_name: summarized_menu[day_name]},
                 "target_groups": input_data.get("target_groups", ["健身爱好者"]),
                 "health_conditions": input_data.get("health_conditions", []),
                 "user_profile": user_profile,
-            }, 4, on_step_update),
-        ]
+            }, 4, on_step_update))
 
-        parallel_results = self._run_agents_parallel(parallel_agents)
-        ws2, r2 = parallel_results[0]
-        ws3, r3 = parallel_results[1]
-        ws4, r4 = parallel_results[2]
+        parallel_results = self._run_agents_parallel(all_parallel)
+
+        # Split results into 3 groups
+        n = len(day_names)
+        nutrition_results = parallel_results[0:n]
+        procurement_results = parallel_results[n:2*n]
+        customizer_results = parallel_results[2*n:3*n]
+
+        # Merge each group
+        merged_nutrition = self._merge_nutrition_results([r[1] for r in nutrition_results])
+        merged_procurement = self._merge_procurement_results([r[1] for r in procurement_results])
+        merged_customizer = self._merge_customizer_results([r[1] for r in customizer_results])
+
+        # Build merged workflow steps
+        total_nutrition_ms = sum(r[0].duration_ms for r in nutrition_results)
+        ws2 = WorkflowStep(step_number=2, agent_name="NutritionAnalyzerAgent (daily merged)",
+            status="completed",
+            input_summary=f"Daily nutrition for {n} days",
+            output_summary=f"Merged nutrition (score: {merged_nutrition.get('overall_score', '?')})",
+            duration_ms=total_nutrition_ms,
+            agent_steps=[{"action": f"Daily {day_names[i]}", "duration_ms": nutrition_results[i][0].duration_ms, "status": nutrition_results[i][0].status} for i in range(n)],
+            error="")
+
+        total_procurement_ms = sum(r[0].duration_ms for r in procurement_results)
+        ws3 = WorkflowStep(step_number=3, agent_name="ProcurementAgent (daily merged)",
+            status="completed",
+            input_summary=f"Daily procurement for {n} days",
+            output_summary=f"Merged procurement (${merged_procurement.get('total_budget', 0):.0f})",
+            duration_ms=total_procurement_ms,
+            agent_steps=[{"action": f"Daily {day_names[i]}", "duration_ms": procurement_results[i][0].duration_ms, "status": procurement_results[i][0].status} for i in range(n)],
+            error="")
+
+        total_customizer_ms = sum(r[0].duration_ms for r in customizer_results)
+        ws4 = WorkflowStep(step_number=4, agent_name="MealCustomizerAgent (daily merged)",
+            status="completed",
+            input_summary=f"Daily customization for {n} days",
+            output_summary=f"Merged for {len(merged_customizer.get('customized_plans', []))} groups",
+            duration_ms=total_customizer_ms,
+            agent_steps=[{"action": f"Daily {day_names[i]}", "duration_ms": customizer_results[i][0].duration_ms, "status": customizer_results[i][0].status} for i in range(n)],
+            error="")
+
         steps.extend([ws2, ws3, ws4])
-
-        if not r2.success:
-            logger.warning("NutritionAnalyzerAgent failed: %s", r2.error)
-            final_output["nutrition_analysis"] = {}
-        else:
-            final_output["nutrition_analysis"] = r2.data
-
-        if not r3.success:
-            logger.warning("ProcurementAgent failed: %s", r3.error)
-            final_output["procurement"] = {}
-        else:
-            final_output["procurement"] = r3.data
-
-        if not r4.success:
-            logger.warning("MealCustomizerAgent failed: %s", r4.error)
-            final_output["meal_customization"] = {}
-        else:
-            final_output["meal_customization"] = r4.data
+        final_output["nutrition_analysis"] = merged_nutrition
+        final_output["procurement"] = merged_procurement
+        final_output["meal_customization"] = merged_customizer
 
         return WorkflowResult("full_meal_service", True, steps, final_output, 0)
 

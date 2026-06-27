@@ -7,9 +7,140 @@ import os
 import asyncio
 import threading
 import logging
+import time
+from collections import defaultdict
 from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
+
+
+# ── LLM Call Timing Interceptor ──────────────────────────────────────────────
+
+class LLMTimingInterceptor:
+    """Intercepts all LLM calls to track per-agent timing."""
+
+    def __init__(self):
+        self._records: List[Dict] = []
+        self._lock = threading.Lock()
+
+    def wrap(self, client):
+        """Wrap an LLM client instance with timing instrumentation."""
+        original_chat = client.chat_completion
+        original_chat_json = client.chat_completion_json
+
+        def timed_chat_completion(messages, temperature=0.7, max_tokens=2048, json_mode=False):
+            agent = _detect_agent_from_messages(messages)
+            start = time.time()
+            try:
+                result = original_chat(messages, temperature=temperature, max_tokens=max_tokens, json_mode=json_mode)
+                elapsed = time.time() - start
+                self._record(agent, "chat_completion", elapsed, len(messages), len(result), "success")
+                return result
+            except Exception as e:
+                elapsed = time.time() - start
+                self._record(agent, "chat_completion", elapsed, len(messages), 0, f"error: {e}")
+                raise
+
+        def timed_chat_completion_json(messages, temperature=0.7, max_tokens=4096):
+            agent = _detect_agent_from_messages(messages)
+            start = time.time()
+            try:
+                result = original_chat_json(messages, temperature=temperature, max_tokens=max_tokens)
+                elapsed = time.time() - start
+                self._record(agent, "chat_completion_json", elapsed, len(messages), len(str(result)), "success")
+                return result
+            except Exception as e:
+                elapsed = time.time() - start
+                self._record(agent, "chat_completion_json", elapsed, len(messages), 0, f"error: {e}")
+                raise
+
+        client.chat_completion = timed_chat_completion
+        client.chat_completion_json = timed_chat_completion_json
+        return client
+
+    def _record(self, agent, call_type, duration, msg_count, resp_len, status):
+        with self._lock:
+            self._records.append({
+                "agent": agent,
+                "type": call_type,
+                "duration_s": round(duration, 3),
+                "messages": msg_count,
+                "response_len": resp_len,
+                "status": status,
+                "timestamp": time.strftime("%H:%M:%S"),
+            })
+
+    def report(self) -> str:
+        """Return a formatted timing report."""
+        with self._lock:
+            if not self._records:
+                return "No LLM calls recorded yet."
+            lines = ["\n" + "=" * 72,
+                     "  LLM CALL TIMING REPORT",
+                     "=" * 72,
+                     f"  Total calls: {len(self._records)}"]
+            by_agent = defaultdict(list)
+            for r in self._records:
+                by_agent[r["agent"]].append(r)
+            for agent, calls in sorted(by_agent.items()):
+                durations = [c["duration_s"] for c in calls]
+                avg_s = sum(durations) / len(durations)
+                total = sum(durations)
+                lines.append(f"  ├─ {agent or 'unknown'}:")
+                lines.append(f"  │   calls={len(calls)}, "
+                             f"total={total:.1f}s, "
+                             f"avg={avg_s:.1f}s, "
+                             f"min={min(durations):.1f}s, "
+                             f"max={max(durations):.1f}s")
+                for c in calls:
+                    symbol = "✅" if c["status"] == "success" else "❌"
+                    lines.append(f"  │     {symbol} {c['timestamp']} {c['type']} "
+                                 f"({c['duration_s']:.1f}s, msgs={c['messages']})")
+            total_time = sum(r["duration_s"] for r in self._records)
+            lines.append(f"  └─ Total wall time: {total_time:.1f}s")
+            lines.append("=" * 72)
+            return "\n".join(lines)
+
+    def reset(self):
+        with self._lock:
+            self._records.clear()
+
+    def get_stats(self) -> Dict:
+        with self._lock:
+            return {
+                "total_calls": len(self._records),
+                "total_time_s": sum(r["duration_s"] for r in self._records),
+                "records": list(self._records),
+            }
+
+
+# Global interceptor instance
+_timing_interceptor = LLMTimingInterceptor()
+
+
+def get_timing_interceptor() -> LLMTimingInterceptor:
+    return _timing_interceptor
+
+
+def _detect_agent_from_messages(messages) -> str:
+    """Heuristic: detect which agent is calling based on system prompt content."""
+    for m in messages:
+        if m.get("role") == "system":
+            content = m.get("content", "")
+            if "智膳大厨" in content or "MenuPlanner" in content:
+                return "MenuPlannerAgent"
+            if "营养分析" in content or "NutritionAnalyzer" in content:
+                return "NutritionAnalyzerAgent"
+            if "采购清单" in content or "Procurement" in content:
+                return "ProcurementAgent"
+            if "膳食定制" in content or "MealCustomizer" in content:
+                return "MealCustomizerAgent"
+            if "智能大厨" in content or "SmartChef" in content:
+                return "SmartChefAgent"
+            if "健康画像" in content or "ProfileAgent" in content:
+                return "ProfileAgent"
+            return "UnknownAgent"
+    return "UnknownAgent"
 
 # Lazy import of the multi-provider implementation
 _multi_provider = None
@@ -40,6 +171,8 @@ class _SyncMultiProviderWrapper:
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._run_loop, daemon=True)
         self._thread.start()
+        # Apply timing interceptor to self (wrap our own chat methods)
+        _timing_interceptor.wrap(self)
 
     def _run_loop(self):
         """Run the persistent event loop forever."""
@@ -85,7 +218,7 @@ class _SyncMultiProviderWrapper:
             json_mode=json_mode,
             stream=False,
         )
-        return self._run_async(coro, timeout=120)
+        return self._run_async(coro, timeout=300)
 
     def chat_completion_json(
         self,
@@ -96,7 +229,7 @@ class _SyncMultiProviderWrapper:
         coro = self._client.chat_completion_json(
             messages=messages, temperature=temperature, max_tokens=max_tokens
         )
-        return self._run_async(coro, timeout=120)
+        return self._run_async(coro, timeout=300)
 
     @property
     def is_demo_mode(self) -> bool:

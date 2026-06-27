@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { languages } from '../i18n';
-import { ChefHat, Home, Sparkles, BookOpen, Bookmark, Bell, User, LogOut, Menu, X, Globe, Zap, Camera } from 'lucide-react';
+import { ChefHat, Home, Sparkles, BookOpen, Bookmark, Bell, User, LogOut, Menu, X, Globe, Users, Camera } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import api from '../api';
 
@@ -52,7 +52,7 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
           <NavLink to="/feed" icon={<Home size={18} />} label={t('nav.feed')} />
-          {user && <NavLink to="/workflow" icon={<Zap size={18} />} label={t('nav.workflow')} />}
+          {user && <NavLink to="/workflow" icon={<Users size={18} />} label={t('nav.workflow')} />}
           {user && <NavLink to="/smart-cook" icon={<Sparkles size={18} />} label="SmartCook" />}
           {user && <NavLink to="/ai" icon={<ChefHat size={18} />} label={t('nav.aiChef')} />}
           {user && <NavLink to="/image" icon={<Camera size={18} />} label={t('nav.imageRecog')} />}

@@ -35,7 +35,7 @@ export default function SmartCook() {
       const res = await api.post('/smart-chef/generate', { user_input: text });
       setResult(res.data);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Something went wrong');
+      setError(err.response?.data?.detail || t('smartCook.error'));
     } finally {
       setLoading(false);
     }
@@ -52,11 +52,11 @@ export default function SmartCook() {
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-terracotta/10 text-terracotta text-xs font-medium mb-4">
-          <Sparkles size={14} /> Multi-Agent Smart Cooking
+          <Sparkles size={14} /> {t('smartCook.badge')}
         </div>
-        <h1 className="font-heading text-3xl text-charcoal mb-2">Tell me your story</h1>
+        <h1 className="font-heading text-3xl text-charcoal mb-2">{t('smartCook.title')}</h1>
         <p className="text-sm text-charcoal/50">
-          Describe your situation, mood, and what's in your fridge — the AI will craft a personalized recipe just for you.
+          {t('smartCook.subtitle')}
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export default function SmartCook() {
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. I'm on a sugar-control diet, worked late and feeling exhausted. I only have tomatoes and eggs in the fridge. Can you make me something warm and comforting?"
+            placeholder={t('smartCook.placeholder')}
             className="input-field w-full min-h-[100px] pr-12 resize-none"
             disabled={loading}
             onKeyDown={(e) => {
@@ -86,9 +86,9 @@ export default function SmartCook() {
         </div>
         <div className="flex gap-2 mt-3">
           {[
-            'I want to lose weight, my fridge has chicken and broccoli',
-            'Working late, need something quick, I have eggs and noodles',
-            'Sugar control, I have tomatoes and tofu, want something warm',
+            t('smartCook.hint1'),
+            t('smartCook.hint2'),
+            t('smartCook.hint3'),
           ].map((hint, i) => (
             <button
               key={i}
@@ -110,9 +110,9 @@ export default function SmartCook() {
       {loading && (
         <div className="text-center py-12">
           <Loader2 size={32} className="animate-spin text-terracotta mx-auto mb-3" />
-          <p className="text-sm text-charcoal/60">Agents collaborating...</p>
+          <p className="text-sm text-charcoal/60">{t('smartCook.agentsWorking')}</p>
           <div className="flex justify-center gap-4 mt-4">
-            {['ProfileAgent', 'NutritionAnalyzer', 'SmartChefAgent'].map((name, i) => (
+            {[t('smartCook.agentProfile'), t('smartCook.agentNutrition'), t('smartCook.agentChef')].map((name, i) => (
               <div key={name} className="flex items-center gap-1.5 text-xs text-charcoal/40">
                 <div className="w-1.5 h-1.5 rounded-full bg-sage" style={{ animationDelay: `${i * 0.3}s` }} />
                 {name}
@@ -140,7 +140,7 @@ export default function SmartCook() {
                 <ChefHat size={20} className="text-terracotta" />
               </div>
               <div>
-                <p className="text-xs text-charcoal/40 mb-1">AI Chef</p>
+                <p className="text-xs text-charcoal/40 mb-1">{t('smartCook.aiChef')}</p>
                 <p className="text-sm text-charcoal leading-relaxed">{result.data.chef_chat}</p>
               </div>
             </div>
@@ -172,20 +172,20 @@ export default function SmartCook() {
             <div className="bg-sage/5 border border-sage/20 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <User size={16} className="text-sage" />
-                <span className="text-sm font-semibold text-sage">Profile Check</span>
+                <span className="text-sm font-semibold text-sage">{t('smartCook.profileCheck')}</span>
               </div>
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
-                  <span className="text-charcoal/40">BMI</span>
+                  <span className="text-charcoal/40">{t('smartCook.bmi')}</span>
                   <p className="font-semibold text-charcoal">{result.data.profile_check.bmi || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-charcoal/40">Goal</span>
+                  <span className="text-charcoal/40">{t('smartCook.goal')}</span>
                   <p className="font-semibold text-charcoal">{result.data.profile_check.goal || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-charcoal/40">Cal/Meal</span>
-                  <p className="font-semibold text-charcoal">{result.data.profile_check.calorie_budget_per_meal || '—'} kcal</p>
+                  <span className="text-charcoal/40">{t('smartCook.calPerMeal')}</span>
+                  <p className="font-semibold text-charcoal">{result.data.profile_check.calorie_budget_per_meal || '—'} {t('smartCook.kcal')}</p>
                 </div>
               </div>
               {result.data.profile_check.health_alerts && result.data.profile_check.health_alerts.length > 0 && (
@@ -213,13 +213,13 @@ export default function SmartCook() {
               <div className="px-5 py-4 space-y-4">
                 <div className="flex gap-4 text-xs text-charcoal/50">
                   {result.data.recipe.time_minutes && (
-                    <span className="flex items-center gap-1"><Clock size={14} /> {result.data.recipe.time_minutes}min</span>
+                    <span className="flex items-center gap-1"><Clock size={14} /> {result.data.recipe.time_minutes}{t('smartCook.min')}</span>
                   )}
                   {result.data.recipe.difficulty && (
                     <span className="flex items-center gap-1"><Flame size={14} /> {result.data.recipe.difficulty}</span>
                   )}
                   {result.data.recipe.calories_estimate && (
-                    <span className="flex items-center gap-1"><Apple size={14} /> {result.data.recipe.calories_estimate}kcal</span>
+                    <span className="flex items-center gap-1"><Apple size={14} /> {result.data.recipe.calories_estimate}{t('smartCook.kcal')}</span>
                   )}
                   {result.data.recipe.gi_level && (
                     <span className="flex items-center gap-1"><Brain size={14} /> {result.data.recipe.gi_level}</span>
@@ -231,7 +231,7 @@ export default function SmartCook() {
                     {Object.entries(result.data.recipe.nutrition).map(([k, v]) => (
                       <div key={k} className="bg-cream rounded-lg px-2 py-1.5 text-center">
                         <p className="text-lg font-bold text-charcoal">{v}</p>
-                        <p className="text-[10px] text-charcoal/40">{k.replace('_g', '')}</p>
+                        <p className="text-[10px] text-charcoal/40">{t(`smartCook.nutrition.${k.replace('_g', '')}`)}</p>
                       </div>
                     ))}
                   </div>
@@ -239,7 +239,7 @@ export default function SmartCook() {
 
                 {result.data.recipe.ingredients && (
                   <div>
-                    <p className="text-xs font-semibold text-charcoal/60 mb-2">Ingredients</p>
+                    <p className="text-xs font-semibold text-charcoal/60 mb-2">{t('smartCook.ingredients')}</p>
                     <ul className="text-xs text-charcoal/70 space-y-1">
                       {result.data.recipe.ingredients.map((ing, i) => <li key={i}>• {ing}</li>)}
                     </ul>
@@ -248,7 +248,7 @@ export default function SmartCook() {
 
                 {result.data.recipe.steps && (
                   <div>
-                    <p className="text-xs font-semibold text-charcoal/60 mb-2">Steps</p>
+                    <p className="text-xs font-semibold text-charcoal/60 mb-2">{t('smartCook.steps')}</p>
                     <ol className="text-xs text-charcoal/70 space-y-1.5">
                       {result.data.recipe.steps.map((step, i) => (
                         <li key={i} className="flex gap-2">

@@ -59,7 +59,7 @@ class MealCustomizerAgent(BaseAgent):
         individual_preferences = input_data.get("individual_preferences", "")
         user_profile = input_data.get("user_profile", {})
 
-        menu_text = json.dumps(menu_data, ensure_ascii=False, indent=2)
+        menu_text = json.dumps(menu_data, ensure_ascii=False)
 
         groups_text = "、".join(target_groups)
         conditions_text = ""

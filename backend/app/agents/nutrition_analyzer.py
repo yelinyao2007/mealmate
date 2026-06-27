@@ -53,7 +53,7 @@ class NutritionAnalyzerAgent(BaseAgent):
         target_population = input_data.get("target_population", "青年群体")
         user_profile = input_data.get("user_profile", {})
 
-        menu_text = json.dumps(menu_data, ensure_ascii=False, indent=2)
+        menu_text = json.dumps(menu_data, ensure_ascii=False)
 
         profile_note = self._build_profile_note(user_profile)
 

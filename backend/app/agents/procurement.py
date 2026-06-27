@@ -13,7 +13,7 @@ class ProcurementAgent(BaseAgent):
     name = "ProcurementAgent"
     description = "采购清单智能体 - 从菜单自动生成优化采购清单，控制成本减少浪费，严格避开过敏源与疾病禁忌食材"
 
-    SYSTEM_PROMPT = """你是社区食堂的AI采购专家，负责根据一周菜单生成采购清单。
+    SYSTEM_PROMPT = """你是社区食堂的AI采购专家，负责根据菜单生成采购清单。
 
 你需要：
 1. 将菜单中所有菜品的食材进行汇总合并
@@ -54,7 +54,7 @@ class ProcurementAgent(BaseAgent):
         existing_inventory = input_data.get("existing_inventory", [])
         user_profile = input_data.get("user_profile", {})
 
-        menu_text = json.dumps(menu_data, ensure_ascii=False, indent=2)
+        menu_text = json.dumps(menu_data, ensure_ascii=False)
 
         inventory_note = ""
         if existing_inventory:
@@ -62,7 +62,7 @@ class ProcurementAgent(BaseAgent):
 
         profile_note = self._build_profile_note(user_profile)
 
-        user_message = f"""请根据以下一周菜单生成采购清单：
+        user_message = f"""请根据以下菜单生成采购清单：
 
 {menu_text}
 
