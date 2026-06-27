@@ -57,6 +57,8 @@ class NutritionAnalyzerAgent(BaseAgent):
 
         profile_note = self._build_profile_note(user_profile)
 
+        profile_note = self._build_profile_note(user_profile)
+
         user_message = f"""请分析以下社区食堂一周菜单的营养均衡性：
 
 {menu_text}
